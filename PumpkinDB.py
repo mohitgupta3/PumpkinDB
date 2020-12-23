@@ -78,3 +78,19 @@ def merge(left, right, param):
             Please make sure that you use a correct sort parameter."
         )
     return result
+
+  # This function implements a merge sort
+def merge_sort(array, param):
+    # If the input array contains fewer than two elements, then return it as the result of the function
+    if len(array) < 2:
+        return array
+
+    midpoint = len(array) // 2
+
+    # Sort the array by recursively splitting the input
+    # into two equal halves, sorting each half and merging them together into the final result
+    return merge(
+        param=param,
+        left=merge_sort(array[:midpoint], param),
+        right=merge_sort(array[midpoint:], param),
+    )
