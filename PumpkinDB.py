@@ -111,3 +111,71 @@ def binary_search(arr, key, value):
             else:
                 u = mid
     return False
+
+# This function matches the documents according to the criteria defined in the filters
+# Not only '== matching' but different kinds like !=, >, <, <=, >=
+def matchDocs(doc, filters):
+    # We should apply special match only if
+    # the filter is a dictionary
+    if "dict" in str(type(filters)):
+
+        # Loop through all the defined filters
+        for i in filters.keys():
+            # Check each filter one by one
+            # The not equals filter
+            if i == "__ne":
+                if doc == filters[i]:
+                    return False
+            # The greater than filter
+            elif i == "__gt":
+                if doc <= filters[i]:
+                    return False
+            # The less than filter
+            elif i == "__lt":
+                if doc >= filters[i]:
+                    return False
+            # The less than or equals filter
+            elif i == "__lte":
+                if doc > filters[i]:
+                    return False
+            # The greater than or equals filter
+            elif i == "__gte":
+                if doc < filters[i]:
+                    return False
+            # The Regular Expression filter
+            elif i == "__re":
+                try:
+                    if re.match(filters[i], str(doc)) == None:
+                        return False
+                except:
+                    raise InvalidRegExpError(
+                        f"The given RegExp `{filters[i]}` is not valid. \
+                        Please refer to docs of the `re` module to see\
+                        what a valid Regular Expression is."
+                    )
+            # Custom function filter
+            elif i == "__cf":
+                try:
+                    if not filters[i](doc):
+                        return False
+                except Exception as e:
+                    raise InvalidFilterError(
+                        f"The provided custom filter `{str(filters[i])}`\
+                        raised an unhandled exception: {str(e)}`"
+                    )
+
+            # Filter does not match any provided filters. Raise Excepion
+            else:
+                raise InvalidFilterError(
+                    f"The provided filter `{i}` is not valid.\
+                     Must be one of __ne, __lt, __gt, __lte, \
+                    __gte, __re, __cf"
+                )
+
+        # The doc passed all the specified filters
+        # It passed the test!
+        return True
+
+    # No custom filter specified, return simple equality check
+    else:
+        return filters == doc
