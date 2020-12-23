@@ -94,3 +94,20 @@ def merge_sort(array, param):
         left=merge_sort(array[:midpoint], param),
         right=merge_sort(array[midpoint:], param),
     )
+
+  # This function implements binary search on an array of docs, finding the
+# one that matches the filters
+def binary_search(arr, key, value):
+    l = 0
+    u = len(arr) - 1
+
+    while l < u:
+        mid = (l + u) // 2
+        if arr[mid][key] == value:
+            return arr[mid]
+        else:
+            if arr[mid][key] < value:
+                l = mid + 1
+            else:
+                u = mid
+    return False
