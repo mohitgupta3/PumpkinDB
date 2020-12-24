@@ -11,3 +11,6 @@ A file based NoSQL DBMS written in python3
 - 2. 23-12-2020
   > Added Sorting functions for tables.<br>
   > Added File tree function
+
+- 3. 24-12-2020
+  > Started Table structure implimentation.<br>
