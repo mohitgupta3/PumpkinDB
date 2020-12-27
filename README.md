@@ -14,3 +14,6 @@ A file based NoSQL DBMS written in python3
 
 - 3. 24-12-2020
   > Started Table structure implimentation.<br>
+
+- 4. 27-12-2020
+  > Added table logic.
