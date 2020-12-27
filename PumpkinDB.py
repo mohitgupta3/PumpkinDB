@@ -217,3 +217,31 @@ def matchDocs(doc, filters):
     # No custom filter specified, return simple equality check
     else:
         return filters == doc
+
+      class table:
+    def __init__(self, name, parent, safeMode: bool = True, preLoad: bool = False):
+        """
+            The class represents a single data table of the name 'name'.
+            @param name <str>: Name of the current table
+            @param parent <utis.database.db.db>: Instance of the parent database.
+            @param safeMode <bool> [Optional]: Whether to use safeMode or not. Default: True.
+            @param preLoad <bool>. [Optional]: Whether to preLoad table data or not.
+                                                This speeds up query speeds by loading data into
+                                                memory. Default: False.
+            WARNING: Using preLoad setting loads data into memory, so if your table is big, then it
+            is recommended NOT to use this option. Don't use this also if you are low on memory.
+        """
+
+        # Save the data
+        self.name = name
+        self.safeMode = safeMode
+        self.preLoad = preLoad
+
+        # Inherit some things from the parent databse
+        self.parent = parent
+        self.path = f"{parent.dbPath}/db/{self.parent.name}/{self.name}.tables"
+        self.key = parent.key
+
+        # If the preLoad method is enabled
+        if preLoad:
+            self.fetch_data()
