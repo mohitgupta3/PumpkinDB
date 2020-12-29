@@ -218,7 +218,7 @@ def matchDocs(doc, filters):
     else:
         return filters == doc
 
-      class table:
+class table:
     def __init__(self, name, parent, safeMode: bool = True, preLoad: bool = False):
         """
             The class represents a single data table of the name 'name'.
@@ -245,3 +245,45 @@ def matchDocs(doc, filters):
         # If the preLoad method is enabled
         if preLoad:
             self.fetch_data()
+
+    # Method used to load/refresh data into memory if preload is enabled
+    def fetch_data(self):
+        # open the table
+        with open(self.path, "rb") as f:
+            # Read, Decrypt and save the data
+            self.data = json.loads(Fernet(self.key.encode()).decrypt(f.read()))
+
+    # Method to insert data into the current table
+    def insert(self, data: dict = {}, **moreData):
+        """
+            This method inserts the given data into the current table.
+            This can be done in two ways:
+                1. table.insert({'key1': 'value1', 'key2': 'value2'})
+                2. table.insert(key1 = value1, key2 = value2)
+            @param data: The data to be inserted into the table
+            @returns <bool>: True if insertion was succesfull, False otherwise
+        """
+        # Make sure the data is correct
+        data = dict(data)
+        # Merge the two types of data provided
+        data.update(moreData)
+        # If preLoad is enabled
+        if self.preLoad:
+            # Change data inplace if preLoad is enabled
+            self.data.append(data)
+
+        # Save the data in file
+        with open(self.path, "rb+") as grp:
+            # load the older data
+            d = json.loads(Fernet(self.key).decrypt(grp.read()).decode("utf-8"))
+            # Insert this data
+            d.append(data)
+            # Empty the file now
+            grp.truncate(0)
+            # Get the cursor at zero position
+            grp.seek(0)
+            # Write the new data
+            grp.write(Fernet(self.key.encode()).encrypt(json.dumps(d).encode()))
+
+        # Success!
+        return True
