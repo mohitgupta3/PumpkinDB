@@ -287,3 +287,167 @@ class table:
 
         # Success!
         return True
+    # Multiple data node insertion.
+    def insert_many(self, *data):
+        """
+            This method inserts the given data dictionaries into the current table.
+            This can be done in this way:
+                table.insert_many(dict1, dict2, dict3, ...)
+            @param data: The data dictionaries to be inserted into the table
+            @returns <bool>: True if insertion was succesfull, False otherwise
+        """
+        # Make sure the data is correct
+        data = [dict(d) for d in data]
+
+        # If preLoad is enabled
+        if self.preLoad:
+            # Change data inplace if preLoad is enabled
+            self.data.extend(data)
+
+        # Save the data in file
+        with open(self.path, "rb+") as grp:
+            # load the older data
+            d = json.loads(Fernet(self.key).decrypt(grp.read()).decode("utf-8"))
+            # Insert this data
+            d.extend(data)
+            # Empty the file now
+            grp.truncate(0)
+            # Get the cursor at zero position
+            grp.seek(0)
+            # Write the new data
+            grp.write(Fernet(self.key.encode()).encrypt(json.dumps(d).encode()))
+
+        return True
+
+    # Function to get back prevously saved data
+    def get_one(self, filters: dict, sortby: str = None):
+        """
+            This functions returns the first document that match the filters
+            defined by the 'filters' dict.
+            @param filters <dict>: This dictionary defines all the filters. All the documents in the
+            table that match these filters are returned.
+            @param sortby <str> [Optional]: The parameter to sort the documents
+            with, before matching.
+            @returns <dict>: The document that matched the given filters
+        """
+
+        # Make sure that filters are correct
+        filters = dict(filters)
+
+        # load data from memory if preLoad is enabled
+        if self.preLoad:
+            docs = self.data
+
+        # Get them from the drive otherwise
+        else:
+            with open(self.path, "rb") as d:
+                docs = json.loads(Fernet(self.key.encode()).decrypt(d.read()))
+
+        # If there is just one filter and it
+        # does not require a special search
+        if (
+            len(filters) == 1
+            and not sortby
+            and "dict" not in str(type(filters[list(filters.keys())[0]]))
+        ):
+
+            # We have an advantage here, we can sort the documents accroding to the only filter
+            # and then implement a Binary search algorithm for faster response
+
+            # This shortens our filters dict into one single variabe rather than a dictionary
+            key = list(filters.keys())[0]
+            value = filters[key]
+
+            # Sort the docs accroding to the filter
+            docs = merge_sort(docs, key)
+
+            # Implement a binary search algorithm on the sorted docs
+            return binary_search(docs, key, value)
+
+        else:
+            # Implement a sort if the user wants it
+            docs = merge_sort(docs, sortby) if sortby else docs
+
+            # Implement a linear search algorithm because we can't sort the list according to all the filter parameters at once
+            for i in docs:
+
+                # Let us assume it matches
+                matches = True
+
+                # Loop through all the filters
+                for j in filters:
+
+                    try:
+                        # If one of the filters does not match the doc's value
+                        if not matchDocs(i[j], filters[j]):
+
+                            # Mark it unmatched
+                            matches = False
+
+                            # And break from the loop
+                            break
+
+                    # Its posiible that all documents don't have the keys given
+                    # in filter, in which case we'll have a KeyError
+                    except KeyError:
+                        matches = False
+                        break
+
+                # If the match is found then return this doc to the user
+                if matches:
+                    return i
+
+    # Function to get back prevously saved data
+    # Same as previous but it returns all occurences of the documents instead of the first one
+    def get(self, filters: dict, sortby: str = None):
+        """
+            This functions returns a list of all documents that match the filters
+            defined by the 'filters' dict.
+            @param filters <dict>: This dictionary defines all the filters. All the documents in the
+            table that match these filters are returned
+            @param sortby <str>[Optional]: The parameter, whose value should be used to sort the result.
+            @returns <List>: Of all the documents that match the given filters
+        """
+
+        # Make sure that filters are correct
+        filters = dict(filters)
+
+        # load data from memory if preLoad is enabled
+        if self.preLoad:
+            docs = self.data
+
+        # Get them from the drive otherwise
+        else:
+            with open(self.path, "rb") as d:
+                docs = json.loads(Fernet(self.key.encode()).decrypt(d.read()))
+
+        # Implement a linear search algorithm because we can't sort the list according to all the filter parameters at once
+        output = []
+        for i in docs:
+            # Let us assme it matches
+            matches = True
+
+            # Loop through all the filters
+            for j in filters:
+                try:
+                    # If one of the filters does not match the doc's value
+                    if not matchDocs(i[j], filters[j]):
+                        # Mark it unmatched
+                        matches = False
+                        # And break from the loop
+                        break
+
+                # Its posiible that all documents don't have the keys given in filter, in which case we'll have a KeyError
+                except KeyError:
+                    matches = False
+                    break
+
+            # If the match is found then return this doc to the user
+            if matches:
+                output.append(i)
+
+        if sortby:
+            # If there's a need to sort the result then do it
+            return merge_sort(output, sortby)
+        else:
+            return output
