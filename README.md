@@ -17,3 +17,7 @@ A file based NoSQL DBMS written in python3
 
 - 4. 27-12-2020
   > Added table logic.
+
+- 5. 29-12-2020
+  > Added Fetch data logic.
+  > Added Update data logic.
