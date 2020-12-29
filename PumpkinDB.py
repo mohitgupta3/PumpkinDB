@@ -451,3 +451,4 @@ class table:
             return merge_sort(output, sortby)
         else:
             return output
+    
