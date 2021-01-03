@@ -1,4 +1,3 @@
-import Exceptions
 import os  # os module is required to manipulate directories and files
 import json  # JSON module helps to manipulate json data
 import platform # Platform information
