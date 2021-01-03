@@ -1,27 +1,26 @@
 # PumpkinDB
+
+### Description:
 A file based NoSQL DBMS written in python3
+It features:
+- AES-256 bit Encryption to protect the data.
+- Login Authentication with timeout.
+- Database API.
+- Thread safety.
 
-#### NOTE: This project is under development.
+#### NOTE: Some features of this project is under development.
 
-#### Dev Log:
-- 1. 22-12-2020: 
-  > Created repository<br>
-  > Added Exceptions
+### Requirements:
+Nothing special but _Regex_
 
-- 2. 23-12-2020
-  > Added Sorting functions for tables.<br>
-  > Added File tree function
+### To run this project:
+Simply type:
+```
+  python PumpkinDB.py
+```
+in your command prompt, and press enter.
 
-- 3. 24-12-2020
-  > Started Table structure implimentation.<br>
-
-- 4. 27-12-2020
-  > Added table logic.
-
-- 5. 29-12-2020
-  > Added Fetch data logic.
-  > Added Update data logic.
-
-- 6. 31-12-2020
-  > Backend complete.<br>
-  > Started Query logic
+### Bugs?
+This project is still under active development. However, SQL query structure is almost working and a detailed usage documentation will be uploaded soon.<br>
+If you face any issues, feel free to reise then in ISSUES section.<br>
+I will be more than happy to solve them.
